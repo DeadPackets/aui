@@ -323,7 +323,7 @@ format_partitions(){
   done
 
   # partitions based on boot system
-  if [[ $UEFI -eq 1 ]]; then
+  if [[ true ]]; then
     partition_name=("root" "EFI" "swap" "another")
   else
     partition_name=("root" "swap" "another")
@@ -537,7 +537,7 @@ configure_fstab(){
   else
     cp ${MOUNTPOINT}/etc/fstab.aui ${MOUNTPOINT}/etc/fstab
   fi
-  if [[ $UEFI -eq 1 ]]; then
+  if [[ true ]]; then
     fstab_list=("DEV" "PARTUUID" "LABEL");
   else
     fstab_list=("DEV" "UUID" "LABEL");
@@ -548,7 +548,7 @@ configure_fstab(){
   select OPT in "${fstab_list[@]}"; do
     case "$REPLY" in
       1) genfstab -p ${MOUNTPOINT} >> ${MOUNTPOINT}/etc/fstab ;;
-      2) if [[ $UEFI -eq 1 ]]; then
+      2) if [[ true ]]; then
           genfstab -t PARTUUID -p ${MOUNTPOINT} >> ${MOUNTPOINT}/etc/fstab
          else
           genfstab -U -p ${MOUNTPOINT} >> ${MOUNTPOINT}/etc/fstab
@@ -644,7 +644,7 @@ install_bootloader(){
   print_title "BOOTLOADER - https://wiki.archlinux.org/index.php/Bootloader"
   print_info "The boot loader is responsible for loading the kernel and initial RAM disk before initiating the boot process."
   print_warning "\tROOT Partition: ${ROOT_MOUNTPOINT}"
-  if [[ $UEFI -eq 1 ]]; then
+  if [[ true ]]; then
     print_warning "\tUEFI Mode Detected"
     bootloaders_list=("Grub2" "Syslinux" "Systemd" "rEFInd" "Skip")
   else
@@ -667,7 +667,7 @@ install_bootloader(){
         break
         ;;
       4)
-        if [[ $UEFI -eq 1 ]]
+        if [[ true ]]
         then
           pacstrap ${MOUNTPOINT} refind-efi os-prober
           break
@@ -676,14 +676,14 @@ install_bootloader(){
         fi
         ;;
       5)
-        [[ $UEFI -eq 1 ]] && break || invalid_option
+        [[ true ]] && break || invalid_option
         ;;
       *)
         invalid_option
         ;;
     esac
   done
-  [[ $UEFI -eq 1 ]] && pacstrap ${MOUNTPOINT} efibootmgr dosfstools
+  [[ true ]] && pacstrap ${MOUNTPOINT} efibootmgr dosfstools
 }
 #}}}
 #CONFIGURE BOOTLOADER {{{
@@ -701,7 +701,7 @@ configure_bootloader(){
             if [[ $LUKS -eq 1 ]]; then
               sed -i -e 's/GRUB_CMDLINE_LINUX="\(.\+\)"/GRUB_CMDLINE_LINUX="\1 cryptdevice=\/dev\/'"${LUKS_DISK}"':crypt"/g' -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="cryptdevice=\/dev\/'"${LUKS_DISK}"':crypt"/g' ${MOUNTPOINT}/etc/default/grub
             fi
-            if [[ $UEFI -eq 1 ]]; then
+            if [[ true ]]; then
               arch_chroot "grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --bootloader-id=arch_grub --recheck"
             else
               arch_chroot "grub-install --target=i386-pc --recheck --debug ${BOOT_MOUNTPOINT}"
